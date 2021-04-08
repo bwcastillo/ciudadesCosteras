@@ -1,0 +1,58 @@
+---
+title: "Doc RPostgresql"
+author: "Bryan Castillo"
+date: "8 de abril de 2021"
+output: html_document
+---
+
+
+```{r}
+#Creo una función que conecta
+fun_connect<-function(){dbConnect(RPostgres::Postgres(),
+                                  dbname = 'censos', 
+                                  host = 'localhost', # i.e. 'ec2-54-83-201-96.compute-1.amazonaws.com'
+                                  port = 5432, # or any other port specified by your DBA
+                                  user = 'postgres',
+                                  password = 'adminpass',
+                                  options="-c search_path=censo")}
+
+#Activo función: me conecta a postgres y la bbdd censos
+conn <- fun_connect()
+
+#Creo una base de datos
+dbSendQuery(conn, "CREATE DATABASE test")
+
+#Creo una función para conectarme a esta nueva base de datos
+fun_connect2<-function(){dbConnect(RPostgres::Postgres(),
+                                  dbname = 'test', 
+                                  host = 'localhost', # i.e. 'ec2-54-83-201-96.compute-1.amazonaws.com'
+                                  port = 5432, # or any other port specified by your DBA
+                                  user = 'postgres',
+                                  password = 'adminpass',
+                                  options="-c search_path=censo")}
+
+#Me conecto a esta nueva base de datos
+coon <- fun_connect2()
+
+#Me desconecto
+dbDisconnect(coon, dbname="test")
+
+#Borro esta baase de datos que cree
+dbSendQuery(conn, "DROP DATABASE test")
+
+#Me desconecto de todas las bases de datos
+dbDisconnect(conn)
+
+
+```
+
+
+Una base de datos tiene esquemas y los esquemas tienen tablas
+
+####Creando esquemas y bases de datos 
+
+```{r}
+dbS
+```
+```{sql}
+```
