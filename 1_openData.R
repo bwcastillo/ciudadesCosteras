@@ -1,11 +1,30 @@
 library(sf)
 library(RPostgres)
+library(tidyverse)
 
 censo1992<-colnames(readRDS("C:/CEDEUS/Censos/Censo1992_Persona_Full.Rds"))
 censo2002<-colnames(readRDS("C:/CEDEUS/Censos/Censo2002_Persona_Full.Rds"))
 censo2012<-colnames(readRDS("C:/CEDEUS/Censos/Censo2012_Persona_Full.Rds"))
 
+summarise_all(readRDS("C:/CEDEUS/Censos/Censo2012_Persona_Full.Rds"),funs(
+  case_when(is.character(.)~max(nchar(.), na.rm=T),
+            is.numeric(.) ~max(nchar(as.character(.)), na.rm=T))))
+
+
+(c(1238,43,56,5,76))
+#write.csv(readRDS("C:/CEDEUS/Censos/Censo2002_Persona_Full.Rds"),"C:/CEDEUS/2021/abril1_ciudadesCosteras/input/censo2002.csv")
+#head(read.csv("C:/CEDEUS/2021/abril1_ciudadesCosteras/input/censo2002.csv"))
+
 colnames(st_read("C:/CEDEUS/2021/abril1_ciudadesCosteras/input/Cartografia censo 2012-20210402T161853Z-001/Cartografia censo 2012/Carto_Region_5.gdb",layer="MANZANA"))
+
+#https://stackoverflow.com/questions/22930292/is-it-possible-to-store-str-output-in-a-r-object
+test<-spread(group_by(as.data.frame(summary.default(readRDS("C:/CEDEUS/Censos/Censo1992_Persona_Full.Rds")), by=Var1)),key = Var2, value = Freq)
+
+abreColumnas<-function(x){tidyr::spread(dplyr::group_by(as.data.frame(summary.default(readRDS(x),funs(summarise_all(max(nchar(.))))), by=Var1)),key = Var2, value = Freq)}
+
+censo1992<-abreColumnas("C:/CEDEUS/Censos/Censo1992_Persona_Full.Rds")
+censo2002<-abreColumnas("C:/CEDEUS/Censos/Censo2002_Persona_Full.Rds")
+censo2012<-abreColumnas("C:/CEDEUS/Censos/Censo2012_Persona_Full.Rds")
 
 
 
@@ -18,7 +37,7 @@ fun_connect<-function(){dbConnect(RPostgres::Postgres(),
                                   port = 5432, # or any other port specified by your DBA
                                   user = 'postgres',
                                   password = 'adminpass',
-                                  options="-c search_path=censo")}
+                                  options="-c search_path=censos")}
 #Activo función
 conn <- fun_connect()
 
@@ -53,18 +72,45 @@ dbDisconnect(conn)
 
 conn<-fun_connect()
 
-dbSendQuery(conn, "CREATE SCHEMA censos")
+#dbSendQuery(conn, "CREATE SCHEMA censos")
 dbSendQuery(conn, "set search_path to censos;")
 
-dbSendQuery()
-
-?copy_to
-?setdiff
-
-
+#paste(test$Var1, test$Mode)
 
 test<-paste(c(paste(dQuote("ID"), "SERIAL PRIMARY KEY"),
-    paste(dQuote(censo1992), "INT NOT NULL")),
+    paste(paste(test$Var1, test$Mode), "NOT NULL")),
     collapse=",")
 
-dbSendQuery(conn,paste0("CREATE TABLE censo1992 (",test, ")"))
+dbSendQuery(conn,paste0("CREATE TABLE censo1992 (",test, ")")) #Funciona!
+
+x$Var1<- gsub(".x$Var1") 
+gsub("\\.","",censo2002$Var1)
+
+#Creo una función que me crea las tablas
+
+creaTabla<-function(x){
+  y<-deparse(substitute(x))
+  
+  x$Var1<-gsub("\\.","",x$Var1)
+  x<-paste(c(paste("ID", "SERIAL PRIMARY KEY"),
+                                  paste(paste(x$Var1, x$Mode), "NOT NULL")),
+                                collapse=",")
+  
+                     x<-paste0("CREATE TABLE ",y," (",x, ")")
+                     return(x)}
+
+
+
+deparse(substitute(test))
+class(deparse(quote(test)))
+test<-creaTabla(censo2002)
+
+dbSendQuery(conn,creaTabla(censo2002))
+
+dbSendQuery(conn, "\copy censos("censo2002") C:/CEDEUS/2021/abril1_ciudadesCosteras/input/censo2002.7z' delimiter ';' csv header;")
+View(test)
+
+C:/CEDEUS/2021/abril1_ciudadesCosteras/input
+
+paste(c("(ID",as.vector(censo2002$Var1),")"), collapse=",")
+
