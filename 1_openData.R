@@ -5,8 +5,17 @@ library(tidyverse)
 censo1992<-colnames(readRDS("C:/CEDEUS/Censos/Censo1992_Persona_Full.Rds"))
 censo2002<-colnames(readRDS("C:/CEDEUS/Censos/Censo2002_Persona_Full.Rds"))
 censo2012<-colnames(readRDS("C:/CEDEUS/Censos/Censo2012_Persona_Full.Rds"))
+View(test)
 
-summarise_all(readRDS("C:/CEDEUS/Censos/Censo2012_Persona_Full.Rds"),funs(
+test2012<-summarise_all(readRDS("C:/CEDEUS/Censos/Censo2012_Persona_Full.Rds"),funs(
+  case_when(is.character(.)~max(nchar(.), na.rm=T),
+            is.numeric(.) ~max(nchar(as.character(.)), na.rm=T))))
+
+test2002<-summarise_all(readRDS("C:/CEDEUS/Censos/Censo2002_Persona_Full.Rds"),funs(
+  case_when(is.character(.)~max(nchar(.), na.rm=T),
+            is.numeric(.) ~max(nchar(as.character(.)), na.rm=T))))
+
+test1992<-summarise_all(readRDS("C:/CEDEUS/Censos/Censo1992_Persona_Full.Rds"),funs(
   case_when(is.character(.)~max(nchar(.), na.rm=T),
             is.numeric(.) ~max(nchar(as.character(.)), na.rm=T))))
 
