@@ -42,7 +42,9 @@ test1992<-summarise_all(readRDS("C:/CEDEUS/Censos/Censo1992_Persona_Full.Rds"),f
   case_when(is.character(.)~max(nchar(.), na.rm=T),
             is.numeric(.) ~max(nchar(as.character(.)), na.rm=T))))
 
-
+test2017<-summarise_all(readRDS("C:/CEDEUS/Censos/Censo2017_Persona_Full.Rds"),funs(
+  case_when(is.character(.)~max(nchar(.), na.rm=T),
+            is.numeric(.) ~max(nchar(as.character(.)), na.rm=T))))
 
 # 0.2 Summaries de tipo de dato
 #https://stackoverflow.com/questions/22930292/is-it-possible-to-store-str-output-in-a-r-object
@@ -54,6 +56,7 @@ abreColumnas<-function(x){tidyr::spread(dplyr::group_by(as.data.frame(summary.de
 censo1992<-abreColumnas("C:/CEDEUS/Censos/Censo1992_Persona_Full.Rds")
 censo2002<-abreColumnas("C:/CEDEUS/Censos/Censo2002_Persona_Full.Rds")
 censo2012<-abreColumnas("C:/CEDEUS/Censos/Censo2012_Persona_Full.Rds")
+censo2017<-abreColumnas("C:/CEDEUS/Censos/Censo2017_Persona_Full.Rds")
 
 # 1. Aprendiendo a crear y  moverme entre BBDD ----------------------------
 
@@ -95,7 +98,7 @@ dbDisconnect(conn)
 
 # 2. Creando esquemas y tablas -----------------------------------------------
 
-# 2.1. Creando esquema y tabla a partir de los summaries
+#Función que crea tabla que sintetiza los summaries
 
 tablita<-function(x,y){
   a<-cbind(variables=row.names(as.data.frame(t(x))),as.data.frame(t(x))) 
@@ -111,57 +114,67 @@ tablita<-function(x,y){
 censo_1992<-tablita(test1992, censo1992)
 censo_2012<-tablita(test2012, censo2012)
 censo_2002<-tablita(test2002, censo2002)
+censo_2017<-tablita(test2017, censo2017)
 
-#me vuelvo a conectar a la bbdd
+# me vuelvo a conectar a la bbdd
 
 conn<-fun_connect()
 
+
+# Crea esquema y me conecto al esquema ------------------------------------
+
+
 #dbSendQuery(conn, "CREATE SCHEMA censos")
+
 dbSendQuery(conn, "set search_path to censos;")
 
-#paste(test$Var1, test$Mode)
 
-test<-paste(c(paste(dQuote("ID"), "SERIAL PRIMARY KEY"),
-    paste(paste(test$variable, test$clase), "(",test$largo,")", "NOT NULL")),
-    collapse=",")
-
-dbSendQuery(conn,paste0("CREATE TABLE censo1992 (",test, ")")) #Funciona!
-
-x$Var1<- gsub(".x$Var1") 
-gsub("\\.","",censo2002$Var1)
-
-#Creo una función que me crea las tablas
+#Función que me crea las tablas -------------------
 
 creaTabla<-function(x){
   y<-deparse(substitute(x))
   
   x$variable<-gsub("\\.","",x$variable)
+  x$variable<-stringr::str_replace_all(x$variable,"ñ","n")
   x<-paste(c(paste("ID", "SERIAL PRIMARY KEY"),
-                                  paste(paste(x$variable, x$clase), "(",x$largo,")", "NOT NULL")),
-                                collapse=",")
+             paste(
+               paste(x$variable, x$clase), 
+               "(",x$largo,")", "NOT NULL")),collapse=",")
   
                      x<-paste0("CREATE TABLE ",y," (",x, ")")
                      return(x)}
 
 
 
-deparse(substitute(test))
-class(deparse(quote(test)))
-creaTabla(test)
+
+
+# Crea tablas -------------------------------------------------------------
+
 
 dbSendQuery(conn,creaTabla(test))
 dbSendQuery(conn,creaTabla(censo_1992))
 dbSendQuery(conn,creaTabla(censo_2002))
 dbSendQuery(conn,creaTabla(censo_2012))
+dbSendQuery(conn,creaTabla(censo_2017))
 
 
-paste(c("(id",as.vector(censo_1992$variable),")"),  collapse=",")
+# Función que crea lista para escribir en psql ----------------------------
 
-(censo_1992$variable)
-#dbSendQuery(conn, "\copy censos('test') C:/CEDEUS/2021/abril1_ciudadesCosteras/input/censo2002.7z' delimiter ';' csv header;")
-View(test)
+#writeClipboard(stringr::str_replace_all(paste0(paste(c("(id",as.vector(censo_1992$variable)),  collapse=","),")"),"ñ","n"))
+#https://www.dummies.com/programming/r/how-to-use-the-clipboard-to-copy-and-paste-data-in-r/
 
-#C:/CEDEUS/2021/abril1_ciudadesCosteras/input#
+creaCopy<-function(x){gsub("\\.","",stringr::str_replace_all(paste0(paste(c("(id",as.vector(x$variable)),  collapse=","),")"),"ñ","n"))}
 
-#paste(c("(ID",as.vector(censo2002$Var1),")"),  collapse=",")
+creaCopy(censo_1992)
+creaCopy(censo_2002)
 
+#dbSendQuery(conn, "copy censos('test') from PROGRAM '7z e -so C:/CEDEUS/2021/abril1_ciudadesCosteras/input/censo1992.7z' delimiter ',' csv header")
+
+
+# Llena las tablas con datos ----------------------------------------------
+
+
+dbSendQuery(conn, paste("copy censo_1992",creaCopy(censo_1992)," from PROGRAM '7z e -so C:/CEDEUS/2021/abril1_ciudadesCosteras/input/censo1992.7z' delimiter ',' csv header;"))
+dbSendQuery(conn, paste("copy censo_2002",creaCopy(censo_2002)," from PROGRAM '7z e -so C:/CEDEUS/2021/abril1_ciudadesCosteras/input/censo2002.7z' delimiter ',' csv header;"))
+dbSendQuery(conn, paste("copy censo_2012",creaCopy(censo_2012)," from PROGRAM '7z e -so C:/CEDEUS/2021/abril1_ciudadesCosteras/input/censo2012.7z' delimiter ',' csv header;"))
+dbSendQuery(conn, paste("copy censo_2017",creaCopy(censo_2017)," from PROGRAM '7z e -so C:/CEDEUS/2021/abril1_ciudadesCosteras/input/censo2017.7z' delimiter ',' csv header;"))
