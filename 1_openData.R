@@ -68,6 +68,10 @@ fun_connect<-function(){dbConnect(RPostgres::Postgres(),
                                   user = 'postgres',
                                   password = 'adminpass',
                                   options="-c search_path=censos")}
+
+
+# Test nueva base de datos ------------------------------------------------
+
 #Activo función
 conn <- fun_connect()
 

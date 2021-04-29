@@ -77,7 +77,97 @@ dbSendQuery(conn, "set search_path to censos;")
 
 
 
+# Creando sub tablas ------------------------------------------------------
+
+#1992
+colnames(tbl(conn, "censo_1992"))
+tbl(conn, "censo_1992") %>% select(.,"comuna")
+
+dbSendQuery(conn, " CREATE TABLE comunas_censo1992 AS
+SELECT *
+FROM censo_1992
+WHERE (comuna='05601' OR comuna='05602' OR comuna='05603' OR comuna='05604' OR comuna='05604' OR comuna='05605' OR comuna='05606')AND  edad>=60   ;")
+
+#https://stackoverflow.com/questions/37351315/count-number-of-rows-when-using-dplyr-to-access-sql-table-query
+tbl(conn, "comunas_censo1992") %>% summarize(n())
+
+
+
+#2002
+colnames(tbl(conn, "censo_2002"))
+dbSendQuery(conn, " CREATE TABLE comunas_censo2002 AS
+SELECT *
+FROM censo_2002
+WHERE (comuna='05601' OR comuna='05602' OR comuna='05603' OR comuna='05604' OR comuna='05604' OR comuna='05605' OR comuna='05606')AND  p19c>=60   ;")
+tbl(conn, "comunas_censo2002") %>% summarize(n())
+
+#2012
+colnames(tbl(conn, "censo_2012"))
+tbl(conn, "censo_2012")
+
 dbSendQuery(conn, " CREATE TABLE comunas_censo2012 AS
 SELECT *
 FROM censo_2012
 WHERE (comuna='05601' OR comuna='05602' OR comuna='05603' OR comuna='05604' OR comuna='05604' OR comuna='05605' OR comuna='05606')AND  p20c>=60   ;")
+
+tbl(conn, "comunas_censo2012") %>% summarize(n())
+
+#2017
+colnames(tbl(conn, "censo_2017"))
+
+dbSendQuery(conn, " CREATE TABLE comunas_censo2017 AS
+SELECT *
+            FROM censo_2017
+            WHERE (comuna='05601' OR comuna='05602' OR comuna='05603' OR comuna='05604' OR comuna='05604' OR comuna='05605' OR comuna='05606')AND  p09>=60   ;")
+
+tbl(conn, "comunas_censo2017") %>% summarize(n())
+
+
+rbind(tbl(conn, "comunas_censo1992") %>% summarize(n()) %>% collect(),
+tbl(conn, "comunas_censo2002") %>% summarize(n()) %>% collect(),
+tbl(conn, "comunas_censo2012") %>% summarize(n()) %>% collect(),
+tbl(conn, "comunas_censo2017") %>% summarize(n()) %>% collect())
+
+
+# conteos 24a por comuna ------------------------------------------------------
+
+library(dbplyr)
+
+test<-dbSendQuery(conn, "SELECT comuna,p24a,p24b, COUNT(*)
+            FROM comunas_censo2002
+            GROUP BY comuna,p24a,p24b;") 
+
+test<-dbFetch(test) 
+
+#23A LUGAR DE RESIDENCIA HABITUAL
+#23B CODIGO DEL PAIS O COMUNA DE RESIDENCIA HABITUAL
+#24A LUGAR DE RESIDENCIA EN EL 97
+#24B CODIGO DEL PAIS O COMUNA DE RESIDENCIA EN EL 97
+
+test<-split.data.frame(test,test$comuna)
+
+lapply(test, function(x){sum(x$count[x$p24a==2])/sum(x$count)*100})
+
+
+# Test 2017 ---------------------------------------------------------------
+test<-dbSendQuery(conn, "SELECT comuna,p11, COUNT(*)
+            FROM comunas_censo2017
+                  GROUP BY comuna,p11;") 
+
+test<-dbFetch(test) 
+
+test<-split.data.frame(test,test$comuna)
+
+lapply(test, function(x){sum(x$count[x$p11==3])/sum(x$count)*100})
+
+
+
+# Gente por comuna --------------------------------------------------------
+
+
+test<-dbSendQuery(conn, "SELECT comuna, COUNT(*)
+              FROM comunas_censo2002
+                    GROUP BY comuna;") 
+test<-dbFetch(test)
+  
+sum(test$count)
