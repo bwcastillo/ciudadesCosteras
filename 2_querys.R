@@ -26,6 +26,14 @@ dbSendQuery(conn, "set search_path to censos;")
 #7.14	LUGVIV	Lugar de residencia habitual	P23A	 	INTEGER	1	9
 #7.15	VIVEHAB	Código de comuna o país de residencia habitual	P23B	 	INTEGER	0	99999
 #7.16	LUGRES97	Lugar de residencia en Abril 1997	P24A	 	INTEGER	1	9
+#Value	Description
+#1	En esta comuna
+#2	En otra comuna
+#3	En otro país
+#9	Ignorado
+#10	MISSING
+#0	NOTAPPLICABLE
+
 #7.17	VIVIA97	Código de comuna o país de residencia en Abril 1997	P24B	 	INTEGER	0	99999
 #SEXO	Sexo	P18
 #EDAD	Edad	P19
@@ -123,13 +131,33 @@ SELECT *
 tbl(conn, "comunas_censo2017") %>% summarize(n())
 
 
+
+# Cantidad total de personas  ---------------------------------------------
+colnames(tbl(conn, "comunas_censo1992"))
 rbind(tbl(conn, "comunas_censo1992") %>% summarize(n()) %>% collect(),
 tbl(conn, "comunas_censo2002") %>% summarize(n()) %>% collect(),
 tbl(conn, "comunas_censo2012") %>% summarize(n()) %>% collect(),
 tbl(conn, "comunas_censo2017") %>% summarize(n()) %>% collect())
 
+# Censo 1992 vive en otra comuna --------------------------------------------------------
 
-# conteos 24a por comuna ------------------------------------------------------
+test<-dbSendQuery(conn, "SELECT comuna, comuna_1987_origen3, COUNT(*)
+                  FROM comunas_censo1992
+                  GROUP BY comuna,comuna_1987_origen3;") 
+
+test<-dbFetch(test)
+
+test$comuna_1987_origen3<-paste0("0",test$comuna_1987_origen3)
+
+test<-split.data.frame(test,test$comuna)
+
+# Cuantas personas fuera de esta comuna hace 5 años --------
+lapply(test, function(x){sum(x$count[x$comuna_1987_origen3!=unique(x$comuna)])/sum(x$count)*100})
+
+# Cuantas personas vienen de cada comuna -------
+lapply(test, function(x){x[x$comuna_1987_origen3!=unique(x$comuna),] %>% group_by(comuna_1987_origen3) %>% summarise(n=sum(count))})
+
+# Censo 2002: conteos 24a por comuna ------------------------------------------------------
 
 library(dbplyr)
 
@@ -146,28 +174,35 @@ test<-dbFetch(test)
 
 test<-split.data.frame(test,test$comuna)
 
+# Cuantas personas fuera de esta comuna hace 5 años --------
 lapply(test, function(x){sum(x$count[x$p24a==2])/sum(x$count)*100})
 
+# Cuantas personas vienen de cada comuna -------
+lapply(test,function(x){x[x$p24a!=1,] %>% group_by( p24b) %>% summarise(n=sum(count))})
 
-# Test 2017 ---------------------------------------------------------------
-test<-dbSendQuery(conn, "SELECT comuna,p11, COUNT(*)
-            FROM comunas_censo2017
-                  GROUP BY comuna,p11;") 
+#  Censo 2012: conteos por comuna -----------------------------------------
+
+test<-dbSendQuery(conn, "SELECT comuna,p22a, COUNT(*)
+            FROM comunas_censo2002
+            GROUP BY comuna,p22a;") 
 
 test<-dbFetch(test) 
 
 test<-split.data.frame(test,test$comuna)
 
-lapply(test, function(x){sum(x$count[x$p11==3])/sum(x$count)*100})
+lapply(test, function(x){sum(x$count[x$p22a==3])/sum(x$count)*100})
 
+# Censo 2017: conteos p11 por comuna  ---------------------------------------------------------------
+test<-dbSendQuery(conn, "SELECT comuna,p11,p11comuna, COUNT(*)
+            FROM comunas_censo2017
+                  GROUP BY comuna,p11,p11comuna;") 
 
+test<-dbFetch(test) 
 
-# Gente por comuna --------------------------------------------------------
+test<-split.data.frame(test,test$comuna)
 
+# Cuantas personas fuera de esta comuna hace 5 años --------
+lapply(test, function(x){sum(x$count[x$p11!=2])/sum(x$count)*100})
 
-test<-dbSendQuery(conn, "SELECT comuna, COUNT(*)
-              FROM comunas_censo2002
-                    GROUP BY comuna;") 
-test<-dbFetch(test)
-  
-sum(test$count)
+# Cuantas personas vienen de cada comuna -------
+lapply(test,function(x){x[x$p11!=2,] %>% group_by(p11comuna) %>% summarise(n=sum(count))})
