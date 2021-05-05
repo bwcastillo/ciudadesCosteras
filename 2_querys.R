@@ -1,3 +1,8 @@
+library(sf)
+library(RPostgres)
+library(tidyverse)
+
+
 #0. Conectandome a la bbdd y schema: -------------------
 
 conn<-fun_connect()
@@ -152,10 +157,10 @@ test$comuna_1987_origen3<-paste0("0",test$comuna_1987_origen3)
 test<-split.data.frame(test,test$comuna)
 
 # Cuantas personas fuera de esta comuna hace 5 años --------
-lapply(test, function(x){sum(x$count[x$comuna_1987_origen3!=unique(x$comuna)])/sum(x$count)*100})
+fuera1992<-lapply(test, function(x){sum(x$count[x$comuna_1987_origen3!=unique(x$comuna)])/sum(x$count)*100}) %>% bind_rows(.) %>% pivot_longer(colnames(.))
 
 # Cuantas personas vienen de cada comuna -------
-lapply(test, function(x){x[x$comuna_1987_origen3!=unique(x$comuna),] %>% group_by(comuna_1987_origen3) %>% summarise(n=sum(count))})
+comuna1992<-lapply(test, function(x){x[x$comuna_1987_origen3!=unique(x$comuna),] %>% group_by(comuna_1987_origen3) %>% summarise(n=sum(count))})%>% bind_rows(.,.id="Comuna") 
 
 # Censo 2002: conteos 24a por comuna ------------------------------------------------------
 
@@ -175,10 +180,10 @@ test<-dbFetch(test)
 test<-split.data.frame(test,test$comuna)
 
 # Cuantas personas fuera de esta comuna hace 5 años --------
-lapply(test, function(x){sum(x$count[x$p24a==2])/sum(x$count)*100})
+fuera2002<-lapply(test, function(x){sum(x$count[x$p24a==2])/sum(x$count)*100}) %>% bind_rows(.) %>% pivot_longer(colnames(.))
 
 # Cuantas personas vienen de cada comuna -------
-lapply(test,function(x){x[x$p24a!=1,] %>% group_by( p24b) %>% summarise(n=sum(count))})
+comuna2002<-lapply(test,function(x){x[x$p24a!=1,] %>% group_by( p24b) %>% summarise(n=sum(count))}) %>% bind_rows(.,.id="Comuna")
 
 #  Censo 2012: conteos por comuna -----------------------------------------
 
@@ -190,7 +195,7 @@ test<-dbFetch(test)
 
 test<-split.data.frame(test,test$comuna)
 
-lapply(test, function(x){sum(x$count[x$p22a==3])/sum(x$count)*100})
+lapply(test, function(x){sum(x$count[x$p22a==3])/sum(x$count)*100})%>% bind_rows(.) %>% pivot_longer(colnames(.))
 
 # Censo 2017: conteos p11 por comuna  ---------------------------------------------------------------
 test<-dbSendQuery(conn, "SELECT comuna,p11,p11comuna, COUNT(*)
@@ -202,7 +207,76 @@ test<-dbFetch(test)
 test<-split.data.frame(test,test$comuna)
 
 # Cuantas personas fuera de esta comuna hace 5 años --------
-lapply(test, function(x){sum(x$count[x$p11!=2])/sum(x$count)*100})
+fuera2017<-lapply(test, function(x){sum(x$count[x$p11!=2])/sum(x$count)*100})%>% bind_rows(.) %>% pivot_longer(colnames(.))
 
 # Cuantas personas vienen de cada comuna -------
-lapply(test,function(x){x[x$p11!=2,] %>% group_by(p11comuna) %>% summarise(n=sum(count))})
+comuna2017<-lapply(test,function(x){x[x$p11!=2,] %>% group_by(p11comuna) %>% summarise(n=sum(count))}) %>% bind_rows(.,.id="Comuna")
+
+
+# Uniendo diccionarios a tablas  ------------------------------------------
+
+#Cargando diccionarios
+
+codecom1992<-readxl::read_xlsx("C:/CEDEUS/2021/abril1_ciudadesCosteras/input/codecomunas.xlsx",col_types = c("text","text"))# 1992
+
+codecom2002<-readxl::read_xlsx("C:/CEDEUS/2021/abril1_ciudadesCosteras/input/codecomunas.xlsx", sheet=2,col_types = c("numeric","text"))#2002
+
+codecom2017<-readxl::read_xlsx("C:/CEDEUS/2021/abril1_ciudadesCosteras/input/codecomunas.xlsx", sheet=3,col_types = c("numeric","text"))#2017
+
+comuna1992$comuna_1987_origen3<-substr(comuna1992$comuna_1987_origen3,2,nchar(comuna1992$comuna_1987_origen3))
+
+comuna1992<-left_join(comuna1992,codecom1992, by=c("comuna_1987_origen3"="Value")) %>% .[!is.na(.$Description),] #%>% split.data.frame(.,.$Comuna)
+colnames(comuna1992)<-c("Comuna_actual", "Comuna_5años_code","Cantidad","Comuna_5años")
+
+comuna2002<-left_join(comuna2002,codecom2002, by=c("p24b"="Value")) %>% .[!is.na(.$Description),]#%>% split.data.frame(.,.$Comuna)
+colnames(comuna2002)<-c("Comuna_actual", "Comuna_5años_code","Cantidad","Comuna_5años")
+
+comuna2017<-left_join(comuna2017,codecom2017, by=c("p11comuna"="Value"))%>% .[!is.na(.$Description),]#%>% split.data.frame(.,.$Comuna)
+colnames(comuna2017)<-c("Comuna_actual", "Comuna_5años_code","Cantidad","Comuna_5años")
+
+test$Description<-as.factor(test$Description)
+test$Description<-with(test, factor(Description, levels = rev(levels(Description))))
+
+library(plotly)
+
+p<-ggplot(test, aes(y=Comuna_actual,x=Comuna_5años, fill=as.integer(Cantidad)))+
+  geom_tile()+
+  theme(axis.text.y = element_text(size=8),axis.text.x = element_text(size=6,angle=90, hjust=1,vjust=0.5))+
+  scale_fill_distiller(palette = "YlOrRd", direction=1)+
+  labs(x="Comunas de Origen", title = "Cantidad de personas llegadas a comunas de la zona costera", fill= "Cantidad de personas")+
+  scale_y_discrete(labels=c("San Antonio", "Algarrobo", "Cartagena","El Quisco","El  Tabo", "Santo Domingo"))
+
+#San Antonio: 5601
+#Algarrobo: 5602
+#Cartagena: 5603
+#El Quisco:5604
+#El Tabo:5605
+#Santo Domingo:5606
+
+graficOrigen<-function(x,y){ggplot(x, aes(y=Comuna_actual,x=Comuna_5años, fill=as.integer(Cantidad)))+
+    
+    geom_tile()+
+    theme(axis.text.y = element_text(size=8),axis.text.x = element_text(size=6,angle=90, hjust=1,vjust=0.5))+
+    scale_fill_distiller(palette = "YlOrRd", direction=1)+
+    labs(x="Comunas de Origen", y="Comunas costeras", title = paste0("Comuna donde residían las personas que actualmente viven comunas costeras en el año ", y) , fill= "Cantidad de personas")+
+    scale_y_discrete(labels=c("San Antonio", "Algarrobo", "Cartagena","El Quisco","El  Tabo", "Santo Domingo"))
+}
+
+g1992<-graficOrigen(comuna1992,"1987") %>% plotly::ggplotly(.,originalData=F)
+g2002<-graficOrigen(comuna2002, "1997")%>% plotly::ggplotly(.)
+g2017<-graficOrigen(comuna2017, "2012")%>% plotly::ggplotly(.)
+
+tabla<-data.frame(
+Comunas=c("San Antonio", "Algarrobo", "Cartagena","El Quisco","El  Tabo", "Santo Domingo"),
+Censo1992=round(fuera1992$value,digits=2),
+Censo2002=round(fuera2002$value,digits=2),
+Censo2017=round(fuera2017$value,digits=2))
+
+
+t1<-knitr::kable(tabla, col.names = c("Comunas", "Año 1987", "Año 1997", "Año 2012"), caption = "Porcentaje de personas que vivían en una comuna distinta a la actual")%>% 
+  kableExtra::kable_styling()
+
+save(g1992,g2002,g2017,t1,file="C:/CEDEUS/2021/abril1_ciudadesCosteras/output/graphicData_v1.RData")
+?save
+getwd()
+dir()

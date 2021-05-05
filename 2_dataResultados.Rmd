@@ -1,0 +1,48 @@
+---
+title: "Resultados pre-eliminares"
+author: "Bryan Castillo"
+date: "4 de mayo de 2021"
+output: html_document
+---
+
+## **Resultados adultos mayores en las costas**
+<br>
+<br>
+
+###_**1.Conteos generales: Adultos mayores por conuna (En construcción)**_
+<br>
+<br>
+
+```{r, echo=FALSE, message=FALSE}
+load("C:/CEDEUS/2021/abril1_ciudadesCosteras/output/graphicData_v1.RData")
+```
+
+###**2. Porcentaje de personas que vienen de otras comunas:**
+
+```{r message=F,echo=FALSE,fig.width=13, fig.height=11, fig.align='center'}
+t1
+```
+
+###**3. ¿En que comuna vivían las personas 5 años antes de ser censadas?**
+<br>
+
+#### **En el año 1987**
+<br>
+
+```{r message=F,echo=FALSE, fig.width=13, fig.height=11, fig.align='left'}
+g1992
+```
+
+#### **En el año 2002**
+<br>
+
+```{r message=F,echo=FALSE, fig.width=13, fig.height=11, fig.align='left'}
+g2002
+```
+
+#### **En el año 2017**
+<br>
+
+```{r message=F,echo=FALSE, fig.width=13, fig.height=11,fig.align='left'}
+g2017
+```
