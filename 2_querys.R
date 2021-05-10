@@ -187,15 +187,16 @@ comuna2002<-lapply(test,function(x){x[x$p24a!=1,] %>% group_by( p24b) %>% summar
 
 #  Censo 2012: conteos por comuna -----------------------------------------
 
-test<-dbSendQuery(conn, "SELECT comuna,p22a, COUNT(*)
-            FROM comunas_censo2002
-            GROUP BY comuna,p22a;") 
+test<-dbSendQuery(conn, "SELECT comuna,p22a,p22b, COUNT(*)
+            FROM comunas_censo2012
+            GROUP BY comuna,p22a,p22b;") 
 
 test<-dbFetch(test) 
 
 test<-split.data.frame(test,test$comuna)
 
 lapply(test, function(x){sum(x$count[x$p22a==3])/sum(x$count)*100})%>% bind_rows(.) %>% pivot_longer(colnames(.))
+lapply(test,function(x){x[x$p22a!=1,] %>% group_by( p22b) %>% summarise(n=sum(count))}) %>% bind_rows(.,.id="Comuna")
 
 # Censo 2017: conteos p11 por comuna  ---------------------------------------------------------------
 test<-dbSendQuery(conn, "SELECT comuna,p11,p11comuna, COUNT(*)
@@ -262,9 +263,9 @@ graficOrigen<-function(x,y){ggplot(x, aes(y=Comuna_actual,x=Comuna_5años, fill=
     scale_y_discrete(labels=c("San Antonio", "Algarrobo", "Cartagena","El Quisco","El  Tabo", "Santo Domingo"))
 }
 
-g1992<-graficOrigen(comuna1992,"1987") %>% plotly::ggplotly(.,originalData=F)
-g2002<-graficOrigen(comuna2002, "1997")%>% plotly::ggplotly(.)
-g2017<-graficOrigen(comuna2017, "2012")%>% plotly::ggplotly(.)
+g1992<-graficOrigen(comuna1992_ii,"1987") %>% plotly::ggplotly(.,originalData=F)
+g2002<-graficOrigen(comuna2002_ii, "1997")%>% plotly::ggplotly(.)
+g2017<-graficOrigen(comuna2017_ii, "2012")%>% plotly::ggplotly(.)
 
 tabla<-data.frame(
 Comunas=c("San Antonio", "Algarrobo", "Cartagena","El Quisco","El  Tabo", "Santo Domingo"),
