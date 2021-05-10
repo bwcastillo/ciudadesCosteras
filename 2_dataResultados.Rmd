@@ -15,6 +15,7 @@ output: html_document
 
 ```{r, echo=FALSE, message=FALSE}
 load("C:/CEDEUS/2021/abril1_ciudadesCosteras/output/graphicData_v1.RData")
+load("C:/CEDEUS/2021/abril1_ciudadesCosteras/output/graphicData_v2.RData")
 ```
 
 ###**2. Porcentaje de personas que vienen de otras comunas:**
@@ -45,4 +46,36 @@ g2002
 
 ```{r message=F,echo=FALSE, fig.width=13, fig.height=11,fig.align='left'}
 g2017
+```
+
+### **PARTE II: SET DE COMUNAS A COMPARAR**
+
+###**II.2. Porcentaje de personas que vienen de otras comunas:**
+
+```{r message=F,echo=FALSE,fig.width=13, fig.height=11, fig.align='center'}
+t2
+```
+
+###**II.3. ¿En que comuna vivían las personas 5 años antes de ser censadas?**
+<br>
+
+#### **En el año 1987**
+<br>
+
+```{r message=F,echo=FALSE, fig.width=13, fig.height=11, fig.align='left'}
+g1992_ii
+```
+
+#### **II.En el año 2002**
+<br>
+
+```{r message=F,echo=FALSE, fig.width=13, fig.height=11, fig.align='left'}
+g2002_ii
+```
+
+#### **II.En el año 2017**
+<br>
+
+```{r message=F,echo=FALSE, fig.width=13, fig.height=11,fig.align='left'}
+g2017_ii
 ```

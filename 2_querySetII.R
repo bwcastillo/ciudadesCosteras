@@ -165,3 +165,8 @@ tabla_ii<-data.frame(
   Censo1992=round(fuera1992_ii$value,digits=2),
   Censo2002=round(fuera2002_ii$value,digits=2),
   Censo2017=round(fuera2017_ii$value,digits=2))
+
+t2<-knitr::kable(tabla_ii, col.names = c("Comunas", "Año 1987", "Año 1997", "Año 2017"), caption = "Porcentaje de personas que vivían en una comuna distinta a la actual")%>% 
+  kableExtra::kable_styling()
+
+save(g1992_ii,g2002_ii,g2017_ii,t2,file="C:/CEDEUS/2021/abril1_ciudadesCosteras/output/graphicData_v2.RData")
