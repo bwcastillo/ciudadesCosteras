@@ -157,18 +157,24 @@ colnames(comuna2017_ii)<-c("Comuna_actual", "Comuna_5años_code","Cantidad","Com
 
 # Graficando --------------------------------------------------------------
 graficOrigen_ii<-function(x,y){ggplot(x, aes(y=Comuna_actual,x=Comuna_5años, fill=as.integer(Cantidad)))+
-    
     geom_tile()+
     theme(axis.text.y = element_text(size=8),axis.text.x = element_text(size=6,angle=90, hjust=1,vjust=0.5))+
     scale_fill_distiller(palette = "YlOrRd", direction=1)+
     labs(x="Comunas de Origen", y="Comunas costeras", title = paste0("Comuna donde residían las personas que actualmente viven comunas costeras en el año ", y) , fill= "Cantidad de personas")+
-    scale_y_discrete(labels=c("Concón", "Quintero", "Puchuncaví", "Zapallar", "Papudo"))
+    scale_y_discrete(labels=c("Concón", "Quintero", "Puchuncaví", "Papudo","Zapallar"))
 }
 
 g1992_ii<-graficOrigen_ii(comuna1992_ii,"1987") %>% plotly::ggplotly(.,originalData=F)
 g2002_ii<-graficOrigen_ii(comuna2002_ii, "1997")%>% plotly::ggplotly(.)
 g2017_ii<-graficOrigen_ii(comuna2017_ii, "2012")%>% plotly::ggplotly(.)
 
+#Ctrl+shift+C (comentar y descomentar)
+# ggplot(comuna1992_ii, aes(y=Comuna_actual,x=Comuna_5años, fill=as.integer(Cantidad)))+
+#   geom_tile()+
+#   theme(axis.text.y = element_text(size=8),axis.text.x = element_text(size=6,angle=90, hjust=1,vjust=0.5))+
+#   scale_fill_distiller(palette = "YlOrRd", direction=1)+
+#   labs(x="Comunas de Origen", y="Comunas costeras", title = paste0("Comuna donde residían las personas que actualmente viven comunas costeras en el año ", 1987) , fill= "Cantidad de personas")+
+#   scale_y_discrete(labels=c("Concón", "Quintero", "Puchuncaví", "Zapallar", "Papudo"))
 
 tabla_ii<-data.frame(
   Comunas=c("Concón", "Quintero", "Puchuncaví", "Papudo","Zapallar"),
