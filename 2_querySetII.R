@@ -1,3 +1,13 @@
+library(sf)
+library(RPostgres)
+library(tidyverse)
+
+
+#0. Conectandome a la bbdd y schema: -------------------
+
+conn<-fun_connect()
+
+dbSendQuery(conn, "set search_path to censos;")
 
 # Parte II: Set de comunas a comparar -------------------------------------
 #Concón, Quintero, Puchuncaví, Zapallar, Papudo
@@ -30,7 +40,7 @@ dbSendQuery(conn, " CREATE TABLE com_censo2002_ii AS
             SELECT *
             FROM censo_2002
             WHERE (comuna='05103' OR comuna='05107' OR comuna='05105' OR comuna='05405' OR comuna='05403')AND  p19>=60   ;")
-tbl(conn, "com_censo2002_ii") %>% summarize(n())
+
 
 #2012
 colnames(tbl(conn, "censo_2012"))
@@ -161,7 +171,7 @@ g2017_ii<-graficOrigen_ii(comuna2017_ii, "2012")%>% plotly::ggplotly(.)
 
 
 tabla_ii<-data.frame(
-  Comunas=c("Concón", "Quintero", "Puchuncaví", "Zapallar", "Papudo"),
+  Comunas=c("Concón", "Quintero", "Puchuncaví", "Papudo","Zapallar"),
   Censo1992=round(fuera1992_ii$value,digits=2),
   Censo2002=round(fuera2002_ii$value,digits=2),
   Censo2017=round(fuera2017_ii$value,digits=2))
@@ -170,3 +180,4 @@ t2<-knitr::kable(tabla_ii, col.names = c("Comunas", "Año 1987", "Año 1997", "A
   kableExtra::kable_styling()
 
 save(g1992_ii,g2002_ii,g2017_ii,t2,file="C:/CEDEUS/2021/abril1_ciudadesCosteras/output/graphicData_v2.RData")
+

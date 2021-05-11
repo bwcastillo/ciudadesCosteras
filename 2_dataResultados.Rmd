@@ -16,6 +16,7 @@ output: html_document
 ```{r, echo=FALSE, message=FALSE}
 load("C:/CEDEUS/2021/abril1_ciudadesCosteras/output/graphicData_v1.RData")
 load("C:/CEDEUS/2021/abril1_ciudadesCosteras/output/graphicData_v2.RData")
+load("C:/CEDEUS/2021/abril1_ciudadesCosteras/output/graphicData_counts.RData")
 ```
 
 ###**2. Porcentaje de personas que vienen de otras comunas:**
@@ -78,4 +79,20 @@ g2002_ii
 
 ```{r message=F,echo=FALSE, fig.width=13, fig.height=11,fig.align='left'}
 g2017_ii
+```
+
+
+
+#### **III.Conteos de cuantas personas provienen de afuera en el área de estudio I**
+<br>
+
+```{r message=F,echo=FALSE, fig.width=13, fig.height=11, fig.align='left'}
+ti_c
+```
+
+#### **III.Conteos de cuantas personas provienen de afuera en el área de estudio II**
+<br>
+
+```{r message=F,echo=FALSE, fig.width=13, fig.height=11,fig.align='left'}
+tii_c
 ```
