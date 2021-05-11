@@ -17,8 +17,8 @@ c2002_i<-lapply(split.data.frame(comuna2002, comuna2002$Comuna_actual), function
 c2017_i<-lapply(split.data.frame(comuna2017, comuna2017$Comuna_actual), function(x){as.numeric(sum(x$Cantidad))})%>% bind_rows(.) %>% as.data.frame(.) %>% pivot_longer(.,1:6)
 
 c1992_ii<-lapply(split.data.frame(comuna1992_ii, comuna1992_ii$Comuna_actual), function(x){as.numeric(sum(x$Cantidad))})%>% bind_rows(.) %>% as.data.frame(.) %>% pivot_longer(.,1:5)
-c2002_ii<-lapply(split.data.frame(comuna2017_ii, comuna2017_ii$Comuna_actual), function(x){as.numeric(sum(x$Cantidad))})%>% bind_rows(.) %>% as.data.frame(.) %>% pivot_longer(.,1:5)
-c2017_ii<-lapply(split.data.frame(comuna2002_ii, comuna2002_ii$Comuna_actual), function(x){as.numeric(sum(x$Cantidad))})%>% bind_rows(.) %>% as.data.frame(.) %>% pivot_longer(.,1:5)
+c2002_ii<-lapply(split.data.frame(comuna2002_ii, comuna2002_ii$Comuna_actual), function(x){as.numeric(sum(x$Cantidad))})%>% bind_rows(.) %>% as.data.frame(.) %>% pivot_longer(.,1:5)
+c2017_ii<-lapply(split.data.frame(comuna2017_ii, comuna2017_ii$Comuna_actual), function(x){as.numeric(sum(x$Cantidad))})%>% bind_rows(.) %>% as.data.frame(.) %>% pivot_longer(.,1:5)
 
 
 # Transformando en tablas -------------------------------------------------
