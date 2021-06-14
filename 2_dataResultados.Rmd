@@ -21,7 +21,7 @@ load("C:/CEDEUS/2021/abril1_ciudadesCosteras/output/graphicData_counts.RData")
 
 ###**2. Porcentaje de personas que vienen de otras comunas:**
 
-```{r message=F,echo=FALSE,fig.width=13, fig.height=11, fig.align='center'}
+```{r message=F,echo=FALSE,fig.width=13, fig.height=8, fig.align='center'}
 t1
 ```
 
