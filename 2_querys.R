@@ -68,12 +68,12 @@ dbSendQuery(conn, "set search_path to censos;")
 #P23C Código comuna o país madre 
 #1101-16255 Código de comuna o país madre 99999 Ignorado
 
-#Algarrobo: 5602
-#Cartagena: 5603
-#El Quisco:5604
-#El Tabo:5605
-#San Antonio: 5601
-#Santo Domingo:5606
+# Algarrobo: 5602
+# Cartagena: 5603
+# El Quisco:5604
+# El Tabo:5605
+# San Antonio: 5601
+# Santo Domingo:5606
 
 #Censo 2017:
 

@@ -54,5 +54,6 @@ Una base de datos tiene esquemas y los esquemas tienen tablas
 ```{r}
 dbS
 ```
+
 ```{sql}
 ```

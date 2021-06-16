@@ -67,6 +67,7 @@ tbl(conn, "com_censo2017_ii") %>% summarize(n())
 
 # Cantidad total de personas  ---------------------------------------------
 colnames(tbl(conn, "comunas_censo1992"))
+
 rbind(tbl(conn, "com_censo1992_ii") %>% summarize(n()) %>% collect(),
       tbl(conn, "com_censo2002_ii") %>% summarize(n()) %>% collect(),
       tbl(conn, "com_censo2017_ii") %>% summarize(n()) %>% collect())
@@ -167,6 +168,9 @@ graficOrigen_ii<-function(x,y){ggplot(x, aes(y=Comuna_actual,x=Comuna_5años, fi
 g1992_ii<-graficOrigen_ii(comuna1992_ii,"1987") %>% plotly::ggplotly(.,originalData=F)
 g2002_ii<-graficOrigen_ii(comuna2002_ii, "1997")%>% plotly::ggplotly(.)
 g2017_ii<-graficOrigen_ii(comuna2017_ii, "2012")%>% plotly::ggplotly(.)
+
+writexl::write_xlsx(comuna2017_ii, "output/comuna2017OD.xlsx")
+writexl::write_xlsx(comuna2017, "output/comuna2017_i_OD.xlsx")
 
 #Ctrl+shift+C (comentar y descomentar)
 # ggplot(comuna1992_ii, aes(y=Comuna_actual,x=Comuna_5años, fill=as.integer(Cantidad)))+
