@@ -66,7 +66,7 @@ tbl(conn, "com_censo2017_ii") %>% summarize(n())
 
 
 # Cantidad total de personas  ---------------------------------------------
-colnames(tbl(conn, "comunas_censo1992"))
+sort(colnames(tbl(conn, "comunas_censo1992")))
 
 rbind(tbl(conn, "com_censo1992_ii") %>% summarize(n()) %>% collect(),
       tbl(conn, "com_censo2002_ii") %>% summarize(n()) %>% collect(),

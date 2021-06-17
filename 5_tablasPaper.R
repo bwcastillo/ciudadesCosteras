@@ -252,3 +252,170 @@ porAM2017=round(nii_am$`2017`/nii$`2017`*100,2))%>% knitr::kable(caption="Porcen
 
 
 save(tp_am, tp_am_ii,tvar,tvar_ii, tvar_am, tvar_amii, file="output/tabsMarkdown.RData")
+
+
+# Provenientes de otras comunas de otros rangos de edades -------------------------------------------
+colnames(tbl(conn, "censo_2017"))
+
+#<15
+
+test<-dbSendQuery(conn, "SELECT comuna,p11,p11comuna, P09,  COUNT(*)
+                  FROM com_censo2017OG
+                  WHERE P09<15 
+                  GROUP BY comuna,P09,p11,p11comuna;") 
+
+test<-dbFetch(test)
+
+test<-split.data.frame(test,test$comuna)
+
+test<-lapply(test, function(x){sum(x$count[x$p11!=2])/sum(x$count)*100})%>% bind_rows(.) %>% pivot_longer(colnames(.))
+test<-lapply(test,function(x){x[x$p11!=2,] %>% group_by(p11comuna) %>% summarise(n=sum(count))}) %>% bind_rows(.,.id="Comuna")
+
+
+left_join(test,codecom2017, by=c("p11comuna"="Value"))%>% .[!is.na(.$Description),]#%>% split.data.frame(.,.$Comuna)
+
+colnames(test)<-c("Comuna_actual", "Comuna_5años_code","Cantidad","Comuna_5años")
+
+
+
+#>15-50
+test<-dbSendQuery(conn, "SELECT comuna,p11,p11comuna, P09,  COUNT(*)
+                  FROM com_censo2017OG
+                  WHERE P09>15 AND P09<50
+                  GROUP BY comuna,P09,p11,p11comuna;") 
+
+test<-dbFetch(test)
+
+test<-split.data.frame(test,test$comuna)
+
+test<-lapply(test, function(x){sum(x$count[x$p11!=2])/sum(x$count)*100})%>% bind_rows(.) %>% pivot_longer(colnames(.))
+test<-lapply(test,function(x){x[x$p11!=2,] %>% group_by(p11comuna) %>% summarise(n=sum(count))}) %>% bind_rows(.,.id="Comuna")
+
+
+left_join(test,codecom2017, by=c("p11comuna"="Value"))%>% .[!is.na(.$Description),]#%>% split.data.frame(.,.$Comuna)
+
+colnames(test)<-c("Comuna_actual", "Comuna_5años_code","Cantidad","Comuna_5años")
+
+
+#50-55
+
+test<-dbSendQuery(conn, "SELECT comuna,p11,p11comuna, P09,  COUNT(*)
+                  FROM com_censo2017OG
+                  WHERE P09>50 AND P09<55
+                  GROUP BY comuna,P09,p11,p11comuna;") 
+
+test<-dbFetch(test)
+
+test<-split.data.frame(test,test$comuna)
+
+test<-lapply(test, function(x){sum(x$count[x$p11!=2])/sum(x$count)*100})%>% bind_rows(.) %>% pivot_longer(colnames(.))
+test<-lapply(test,function(x){x[x$p11!=2,] %>% group_by(p11comuna) %>% summarise(n=sum(count))}) %>% bind_rows(.,.id="Comuna")
+
+
+left_join(test,codecom2017, by=c("p11comuna"="Value"))%>% .[!is.na(.$Description),]#%>% split.data.frame(.,.$Comuna)
+
+colnames(test)<-c("Comuna_actual", "Comuna_5años_code","Cantidad","Comuna_5años")
+
+
+#55-60
+
+test<-dbSendQuery(conn, "SELECT comuna,p11,p11comuna, P09,  COUNT(*)
+                  FROM com_censo2017OG
+                  WHERE P09>55 AND P09<60
+                  GROUP BY comuna,P09,p11,p11comuna;") 
+
+test<-dbFetch(test)
+
+test<-split.data.frame(test,test$comuna)
+
+test<-lapply(test, function(x){sum(x$count[x$p11!=2])/sum(x$count)*100})%>% bind_rows(.) %>% pivot_longer(colnames(.))
+test<-lapply(test,function(x){x[x$p11!=2,] %>% group_by(p11comuna) %>% summarise(n=sum(count))}) %>% bind_rows(.,.id="Comuna")
+
+
+left_join(test,codecom2017, by=c("p11comuna"="Value"))%>% .[!is.na(.$Description),]#%>% split.data.frame(.,.$Comuna)
+
+colnames(test)<-c("Comuna_actual", "Comuna_5años_code","Cantidad","Comuna_5años")
+
+
+# Set de comunas 2 --------------------------------------------------------
+
+
+
+test<-dbSendQuery(conn, "SELECT comuna,p11,p11comuna, P09,  COUNT(*)
+                  FROM comunas_censo2017OG_ii
+                  WHERE P09<15 
+                  GROUP BY comuna,P09,p11,p11comuna;") 
+
+test<-dbFetch(test)
+
+test<-split.data.frame(test,test$comuna)
+
+test<-lapply(test, function(x){sum(x$count[x$p11!=2])/sum(x$count)*100})%>% bind_rows(.) %>% pivot_longer(colnames(.))
+test<-lapply(test,function(x){x[x$p11!=2,] %>% group_by(p11comuna) %>% summarise(n=sum(count))}) %>% bind_rows(.,.id="Comuna")
+
+
+left_join(test,codecom2017, by=c("p11comuna"="Value"))%>% .[!is.na(.$Description),]#%>% split.data.frame(.,.$Comuna)
+
+colnames(test)<-c("Comuna_actual", "Comuna_5años_code","Cantidad","Comuna_5años")
+
+
+
+#>15-50
+
+test<-dbSendQuery(conn, "SELECT comuna,p11,p11comuna, P09,  COUNT(*)
+                  FROM comunas_censo2017OG_ii
+                  WHERE P09>15 AND P09<50
+                  GROUP BY comuna,P09,p11,p11comuna;") 
+
+test<-dbFetch(test)
+
+test<-split.data.frame(test,test$comuna)
+
+test<-lapply(test, function(x){sum(x$count[x$p11!=2])/sum(x$count)*100})%>% bind_rows(.) %>% pivot_longer(colnames(.))
+test<-lapply(test,function(x){x[x$p11!=2,] %>% group_by(p11comuna) %>% summarise(n=sum(count))}) %>% bind_rows(.,.id="Comuna")
+
+
+left_join(test,codecom2017, by=c("p11comuna"="Value"))%>% .[!is.na(.$Description),]#%>% split.data.frame(.,.$Comuna)
+
+colnames(test)<-c("Comuna_actual", "Comuna_5años_code","Cantidad","Comuna_5años")
+
+
+#50-55
+
+test<-dbSendQuery(conn, "SELECT comuna,p11,p11comuna, P09,  COUNT(*)
+                  FROM comunas_censo2017OG_ii
+                  WHERE P09>50 AND P09<55
+                  GROUP BY comuna,P09,p11,p11comuna;") 
+
+test<-dbFetch(test)
+
+test<-split.data.frame(test,test$comuna)
+
+test<-lapply(test, function(x){sum(x$count[x$p11!=2])/sum(x$count)*100})%>% bind_rows(.) %>% pivot_longer(colnames(.))
+test<-lapply(test,function(x){x[x$p11!=2,] %>% group_by(p11comuna) %>% summarise(n=sum(count))}) %>% bind_rows(.,.id="Comuna")
+
+
+left_join(test,codecom2017, by=c("p11comuna"="Value"))%>% .[!is.na(.$Description),]#%>% split.data.frame(.,.$Comuna)
+
+colnames(test)<-c("Comuna_actual", "Comuna_5años_code","Cantidad","Comuna_5años")
+
+
+#55-60
+
+test<-dbSendQuery(conn, "SELECT comuna,p11,p11comuna, P09,  COUNT(*)
+                  FROM comunas_censo2017OG_ii
+                  WHERE P09>55 AND P09<60
+                  GROUP BY comuna,P09,p11,p11comuna;") 
+
+test<-dbFetch(test)
+
+test<-split.data.frame(test,test$comuna)
+
+test<-lapply(test, function(x){sum(x$count[x$p11!=2])/sum(x$count)*100})%>% bind_rows(.) %>% pivot_longer(colnames(.))
+test<-lapply(test,function(x){x[x$p11!=2,] %>% group_by(p11comuna) %>% summarise(n=sum(count))}) %>% bind_rows(.,.id="Comuna")
+
+
+left_join(test,codecom2017, by=c("p11comuna"="Value"))%>% .[!is.na(.$Description),]#%>% split.data.frame(.,.$Comuna)
+
+colnames(test)<-c("Comuna_actual", "Comuna_5años_code","Cantidad","Comuna_5años")
+
