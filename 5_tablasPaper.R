@@ -107,7 +107,7 @@ abc<-left_join(ab,c, by="comuna")
 colnames(abc)[2:4]<- c("1992","2002","2017")
 abc$comuna<-c("Zapallar","Puchuncaví","Concón","Papudo","Quintero")
 
-
+n1<-abc
 # Creando base de datos de todas las personas del conjunto Santo Domingo-Algarrobo --------
 
 

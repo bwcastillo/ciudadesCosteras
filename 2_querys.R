@@ -139,9 +139,8 @@ tbl(conn, "comunas_censo2017") %>% summarize(n())
 
 # Cantidad total de personas  ---------------------------------------------
 colnames(tbl(conn, "comunas_censo1992"))
-rbind(tbl(conn, "comunas_censo1992") %>% summarize(n()) %>% collect(),
+n1<-rbind(tbl(conn, "comunas_censo1992") %>% summarize(n()) %>% collect(),
 tbl(conn, "comunas_censo2002") %>% summarize(n()) %>% collect(),
-tbl(conn, "comunas_censo2012") %>% summarize(n()) %>% collect(),
 tbl(conn, "comunas_censo2017") %>% summarize(n()) %>% collect())
 
 # Censo 1992 vive en otra comuna --------------------------------------------------------

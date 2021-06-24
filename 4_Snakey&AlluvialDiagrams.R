@@ -20,16 +20,47 @@ case_when(comuna2017_ii$Comuna_actual=="05405"~"ZAPALLAR",
 comunas<-st_read("C:/CEDEUS/2021/abril1_ciudadesCosteras/input/division_comunal_geo_ide_1/division_comunal_geo_ide_1.shp")
 
 unique(comunas$NOM_REG)
-comunas<-comunas[comunas$NOM_REG=="Región de Valparaíso",]
+comunas<-comunas[comunas$NOM_REG=="Región de Valparaíso" & comunas$NOM_REG=="Región Metropolitana de Santiago",]
 comunas$NOM_COM<-chartr("ÁÉÍÓÚ", "AEIOU", toupper(comunas$NOM_COM))
 
-st_centroid(comunas)
+
+tp_am
+tp_am_ii
+map<-rbind(tp_am,
+tp_am_ii)
+
+
+map$comuna<-chartr("ÁÉÍÓÚ", "AEIOU", toupper(map$comuna))
 
 
 
 
 
-# NetworkD3 ---------------------------------------------------------------
-install.packages("networkD3")
-library(networkD3)
+dbSendQuery(conn, " CREATE TABLE com_censo1992_ii AS
+            SELECT *
+            FROM censo_1992
+            WHERE (comuna='05103' OR comuna='05107' OR comuna='05105' OR comuna='05405' OR comuna='05403' OR omuna='05601' OR comuna='05602' OR comuna='05603' OR comuna='05604' OR comuna='05604' OR comuna='05605' OR comuna='05606')AND  edad>=60   ;")
+
+
+dbSendQuery(conn, " CREATE TABLE com_censo2002_ii AS
+            SELECT *
+            FROM censo_2002
+            WHERE (comuna='05103' OR comuna='05107' OR comuna='05105' OR comuna='05405' OR comuna='05403' OR comuna='05601' OR comuna='05602' OR comuna='05603' OR comuna='05604' OR comuna='05604' OR comuna='05605' OR comuna='05606')AND  p19>=60  ;")
+
+
+dbSendQuery(conn, " CREATE TABLE com_censo2017_ii AS
+            SELECT *
+            FROM censo_2017
+            WHERE (comuna='05103' OR comuna='05107' OR comuna='05105' OR comuna='05405' OR comuna='05403')AND  p09>=60   ;")
+
+
+?lm
+
+
+
+
+dbSendQuery(conn, " CREATE TABLE comunas_censo2017 AS
+SELECT *
+            FROM censo_2017
+            WHERE ()AND  p09>=60   ;")
 
